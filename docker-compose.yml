@@ -16,11 +16,22 @@ services:
       - SQL_PASSWORD=YourStrong!Passw0rd
     depends_on:
       - sqlserver
+  # web:
+  #   build:
+  #     context: src/web
+  #   ports:
+  #     - "1000:1000"
+  #   environment:
+  #     CHOKIDAR_USEPOLLING: "true" # Ensure file changes are detected inside the container
+  #     CHOKIDAR_INTERVAL: "1000"   # Optional: Adjust polling interval
   web:
-    build:
-      context: src/web
+    build: 
+        context: src/web
     ports:
-      - "1000:80"
+      - "1000:1000"
+    volumes:
+      - .:/web
+    command: npm run dev
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: sqlserver
@@ -31,6 +42,17 @@ services:
       - "1433:1433"
     volumes:
       - sql_data:/var/opt/mssql
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"   # RabbitMQ default port
+      - "15672:15672" # RabbitMQ Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
 
 volumes:
   sql_data:
+  rabbitmq-data:  

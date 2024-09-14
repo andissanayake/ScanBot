@@ -30,6 +30,7 @@ namespace Api.Controllers
                 return AppResponse<bool>.ErrorResponse("doc", "No documents attached.");
 
             var filePath = Path.Combine(_webRootPath, "Documents", file.FileName);
+            var id = User.FindFirst("Id")?.Value ?? "";
             Directory.CreateDirectory(Path.GetDirectoryName(filePath));
 
             using (var stream = new FileStream(filePath, FileMode.Create))
@@ -42,7 +43,8 @@ namespace Api.Controllers
                 FileName = file.FileName,
                 FilePath = filePath,
                 ContentType = file.ContentType,
-                UploadedDate = DateTime.Now
+                UploadedDate = DateTime.Now,
+                OwnerId = id
             };
 
             return await _documentService.DocumentCreate(document);

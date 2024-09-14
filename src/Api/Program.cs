@@ -6,6 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Service;
 using Service.DocumentGroup;
+using Service.Messages;
 using Service.UserGroup;
 using System.Text;
 namespace Api
@@ -58,6 +59,7 @@ namespace Api
             builder.Services.AddScoped<ApplicationDbContextInitializer>();
             builder.Services.AddTransient<UserService>();
             builder.Services.AddTransient<DocumentService>();
+            builder.Services.AddSingleton<IMessageQueueService, RabbitMQService>();
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
 

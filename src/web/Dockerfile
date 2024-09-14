@@ -1,27 +1,20 @@
-# Stage 1: Build the app
-FROM node:18 AS build
+# Use node image for development
+FROM node:18
 
 # Set the working directory
 WORKDIR /app
 
-# Copy the package.json and install dependencies
+# Copy the package.json and package-lock.json (if it exists) to install dependencies
 COPY package*.json ./
+
+# Install dependencies
 RUN npm install
 
 # Copy the rest of the application code
 COPY . .
 
-# Build the application
-RUN npm run build
+# Expose the development server port (change to 3000 if needed)
+EXPOSE 1000
 
-# Stage 2: Serve the app using Nginx
-FROM nginx:alpine
-
-# Copy the build output from the previous stage
-COPY --from=build /app/dist /usr/share/nginx/html
-
-# Expose port 80
-EXPOSE 80
-
-# Start Nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Start the Vite development server
+CMD ["npm", "run", "dev"]

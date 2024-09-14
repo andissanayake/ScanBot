@@ -1,4 +1,5 @@
 ﻿using Data;
+using System.Text.Json;
 
 namespace Service.DocumentGroup
 {
@@ -15,8 +16,10 @@ namespace Service.DocumentGroup
     {
         public async Task<AppResponse<bool>> DocumentCreate(DocumentCreateRequest doc)
         {
-            var docs = await _context.Documents.AddAsync(new Document { FileName = doc.FileName, ContentType = doc.ContentType, FilePath = doc.FilePath, OwnerId = doc.OwnerId, UploadedDate = DateTime.UtcNow });
+            var ndoc = new Document { FileName = doc.FileName, ContentType = doc.ContentType, FilePath = doc.FilePath, OwnerId = doc.OwnerId, UploadedDate = DateTime.UtcNow, Status = "UPLOADED" };
+            await _context.Documents.AddAsync(ndoc);
             await _context.SaveChangesAsync();
+            messageQueueService.SendMessage(JsonSerializer.Serialize(ndoc));
             return AppResponse<bool>.SuccessResponse(true);
         }
 

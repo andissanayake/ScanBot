@@ -10,6 +10,7 @@ import { useAppSelector } from "./app/hooks";
 import { selectAuth } from "./features/user/authSlice";
 import { UserLayout } from "./layout/UserLayout";
 import { Spin } from "antd";
+import { DocumentPage } from "./pages/DocumnetPage";
 export const App = () => {
   const auth = useAppSelector(selectAuth);
   if (!auth.user) {
@@ -32,6 +33,7 @@ export const App = () => {
           <Routes>
             <Route path="/" element={<UserLayout {...auth.user} />}>
               <Route index element={<HomePage />} />
+              <Route path="documents" element={<DocumentPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Route>
           </Routes>

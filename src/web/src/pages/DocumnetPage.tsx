@@ -1,5 +1,7 @@
 import { App, Breadcrumb, Button, Upload, UploadProps } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
+import { RcFile } from "antd/es/upload";
+import DocumentTable from "../features/document/List";
 
 export const DocumentPage = () => {
   const { message } = App.useApp();
@@ -7,7 +9,38 @@ export const DocumentPage = () => {
 
   const props: UploadProps = {
     name: "file",
-    action: `${BASE_URL}/api/Documents`,
+    customRequest: async (options: any) => {
+      const { file, onSuccess, onError } = options;
+
+      const formData = new FormData();
+      formData.append("file", file as RcFile);
+
+      try {
+        const response = await fetch(`${BASE_URL}/api/Documents`, {
+          method: "POST",
+          body: formData,
+          headers: {
+            // Add any headers you might need (e.g., authorization)
+            // 'Authorization': `Bearer ${token}`
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          onSuccess?.(data, file);
+          message.success(
+            `${(file as RcFile).name} file uploaded successfully`
+          );
+        } else {
+          onError?.(new Error("Upload failed"));
+          message.error(`${(file as RcFile).name} file upload failed.`);
+        }
+      } catch (error) {
+        console.error("Upload error:", error);
+        onError?.(error);
+        message.error(`${(file as RcFile).name} file upload failed.`);
+      }
+    },
     onChange(info) {
       if (info.file.status !== "uploading") {
         console.log(info.file, info.fileList);
@@ -29,6 +62,7 @@ export const DocumentPage = () => {
       <Upload {...props}>
         <Button icon={<UploadOutlined />}>Click to Upload</Button>
       </Upload>
+      <DocumentTable />
     </>
   );
 };
