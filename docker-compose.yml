@@ -15,7 +15,9 @@ services:
       - SQL_USER=sa
       - SQL_PASSWORD=YourStrong!Passw0rd
     depends_on:
-      - sqlserver
+      - postgres
+    volumes:
+      - shared-data:/app/wwwroot/Documents
   # web:
   #   build:
   #     context: src/web
@@ -32,16 +34,16 @@ services:
     volumes:
       - .:/web
     command: npm run dev
-  sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: sqlserver
-    environment:
-      - ACCEPT_EULA=Y
-      - SA_PASSWORD=YourStrong!Passw0rd
-    ports:
-      - "1433:1433"
-    volumes:
-      - sql_data:/var/opt/mssql
+  # sqlserver:
+  #   image: mcr.microsoft.com/mssql/server:2022-latest
+  #   container_name: sqlserver
+  #   environment:
+  #     - ACCEPT_EULA=Y
+  #     - SA_PASSWORD=YourStrong!Passw0rd
+  #   ports:
+  #     - "1433:1433"
+  #   volumes:
+  #     - sql_data:/var/opt/mssql
   rabbitmq:
     image: rabbitmq:3-management
     ports:
@@ -52,7 +54,20 @@ services:
       RABBITMQ_DEFAULT_PASS: "guest"
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    environment:
+      POSTGRES_DB: UnifiedAppDb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: YourStrong!Passw0rd
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
 volumes:
   sql_data:
-  rabbitmq-data:  
+  rabbitmq-data: 
+  postgres_data:
+  shared-data:  

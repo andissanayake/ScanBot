@@ -22,7 +22,8 @@ namespace Api
             builder.Services.AddSingleton(appSettings);
 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                            options.UseSqlServer(connectionStr, x => x.MigrationsAssembly("Data")));
+                            //options.UseSqlServer(connectionStr, x => x.MigrationsAssembly("Data")));
+                            options.UseNpgsql(connectionStr, x => x.MigrationsAssembly("Data")));
 
             builder.Services.AddIdentityCore<ApplicationUser>()
                 .AddRoles<IdentityRole>()
