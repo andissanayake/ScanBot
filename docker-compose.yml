@@ -1,0 +1,36 @@
+services:
+  api:
+    image: ${DOCKER_REGISTRY-}api
+    build:
+      context: .
+      dockerfile: src/Api/Dockerfile
+    ports:
+      - "1001:8080"
+      - "1002:8081"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+      - SQL_SERVER=sqlserver
+      - SQL_USER=sa
+      - SQL_PASSWORD=YourStrong!Passw0rd
+    depends_on:
+      - sqlserver
+  web:
+    build:
+      context: src/web
+    ports:
+      - "1000:80"
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong!Passw0rd
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql_data:/var/opt/mssql
+
+volumes:
+  sql_data:
