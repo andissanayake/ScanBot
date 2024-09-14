@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Service;
+using Service.DocumentGroup;
 using Service.UserGroup;
 using System.Text;
 namespace Api
@@ -56,6 +57,7 @@ namespace Api
 
             builder.Services.AddScoped<ApplicationDbContextInitialiser>();
             builder.Services.AddTransient<UserService>();
+            builder.Services.AddTransient<DocumentService>();
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
 
@@ -108,6 +110,7 @@ namespace Api
                 await initialiser.InitialiseAsync();
                 await initialiser.SeedAsync();
             }
+            app.UseStaticFiles();
             app.UseHttpsRedirection();
             app.UseCors("webAppRequests");
             app.UseAuthentication();
