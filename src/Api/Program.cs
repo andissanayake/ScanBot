@@ -55,7 +55,7 @@ namespace Api
                     };
                 });
 
-            builder.Services.AddScoped<ApplicationDbContextInitialiser>();
+            builder.Services.AddScoped<ApplicationDbContextInitializer>();
             builder.Services.AddTransient<UserService>();
             builder.Services.AddTransient<DocumentService>();
             builder.Services.AddControllers();
@@ -106,9 +106,9 @@ namespace Api
                 app.UseSwagger();
                 app.UseSwaggerUI();
                 using var scope = app.Services.CreateScope();
-                var initialiser = scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitialiser>();
-                await initialiser.InitialiseAsync();
-                await initialiser.SeedAsync();
+                var initializer = scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitializer>();
+                await initializer.InitializeAsync();
+                await initializer.SeedAsync();
             }
             app.UseStaticFiles();
             app.UseHttpsRedirection();

@@ -5,14 +5,14 @@ using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 namespace Data
 {
-    public class ApplicationDbContextInitialiser(ILogger<ApplicationDbContextInitialiser> logger, ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+    public class ApplicationDbContextInitializer(ILogger<ApplicationDbContextInitializer> logger, ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
     {
-        private readonly ILogger<ApplicationDbContextInitialiser> _logger = logger;
+        private readonly ILogger<ApplicationDbContextInitializer> _logger = logger;
         private readonly ApplicationDbContext _context = context;
         private readonly UserManager<ApplicationUser> _userManager = userManager;
         private readonly RoleManager<IdentityRole> _roleManager = roleManager;
 
-        public async Task InitialiseAsync()
+        public async Task InitializeAsync()
         {
             try
             {
@@ -23,7 +23,7 @@ namespace Data
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "An error occurred while initialising the database.");
+                _logger.LogError(ex, "An error occurred while initializing the database.");
                 throw;
             }
         }

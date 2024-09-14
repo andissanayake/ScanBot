@@ -52,6 +52,13 @@ export const UserLayout = ({ UserName }: iUser) => {
                 label: UserName,
               },
               {
+                key: "/documents",
+                label: "Documents",
+                onClick: (e) => {
+                  handleClick(e.key);
+                },
+              },
+              {
                 key: "/logout",
                 label: "Logout",
                 onClick: () => {
