@@ -17,7 +17,7 @@ services:
     depends_on:
       - postgres
     volumes:
-      - shared-data:/app/wwwroot/Documents
+      - shared-data:/app/wwwroot
   # web:
   #   build:
   #     context: src/web
@@ -65,7 +65,16 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-
+  document:
+    build: 
+        context: src/Document
+    depends_on:
+      - rabbitmq
+    environment:
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+    volumes:
+      - shared-data:/app/wwwroot
 volumes:
   sql_data:
   rabbitmq-data: 

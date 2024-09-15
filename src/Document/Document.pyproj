@@ -2,15 +2,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>bdf39dda-b6c4-4b50-97e9-936c0d914f20</ProjectGuid>
+    <ProjectGuid>6a698a83-1e10-497f-b88e-59831a69df86</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>DocumentProcessor.py</StartupFile>
+    <StartupFile>processor.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <OutputPath>.</OutputPath>
-    <Name>DocumentProcessor</Name>
-    <RootNamespace>DocumentProcessor</RootNamespace>
+    <Name>Document</Name>
+    <RootNamespace>Document</RootNamespace>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,7 +21,11 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="DocumentProcessor.py" />
+    <Compile Include="processor.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Dockerfile" />
+    <Content Include="requirements.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in
