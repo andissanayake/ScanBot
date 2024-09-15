@@ -1,6 +1,7 @@
 ﻿using Data;
 using Microsoft.EntityFrameworkCore;
 using Service.Messages;
+using System.Text.Json;
 
 namespace Service.DocumentGroup
 {
@@ -13,6 +14,7 @@ namespace Service.DocumentGroup
         public string OwnerId { get; set; }
         public string Status { get; set; }
         public DateTime UploadedDate { get; set; }
+        public string Segments { get; set; }
     }
     public class DocumentListResponse
     {
@@ -28,6 +30,11 @@ namespace Service.DocumentGroup
                     .Where(d => d.OwnerId == userId)
                     .Select(d => new DocumentListLitem() { FileName = d.FileName, OwnerId = d.OwnerId, FilePath = d.FilePath, Id = d.Id, UploadedDate = d.UploadedDate, ContentType = d.ContentType, Status = d.Status })
                     .ToListAsync();
+            foreach (var doc in docs)
+            {
+                var segments = _context.DocumentSegments.Where(d => d.DocumentId == doc.Id).ToList(); ;
+                doc.Segments = JsonSerializer.Serialize(segments);
+            }
             return AppResponse<DocumentListResponse>.SuccessResponse(new DocumentListResponse() { Documents = docs });
         }
 

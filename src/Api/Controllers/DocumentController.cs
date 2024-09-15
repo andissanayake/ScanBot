@@ -29,7 +29,10 @@ namespace Api.Controllers
             if (file == null || file.Length == 0)
                 return AppResponse<bool>.ErrorResponse("doc", "No documents attached.");
 
-            var filePath = Path.Combine(_webRootPath, "Documents", file.FileName);
+            var fileExtension = Path.GetExtension(file.FileName); // Get the file extension
+            var newFileName = Guid.NewGuid().ToString() + fileExtension; // Construct new file name with extension
+            var filePath = Path.Combine(_webRootPath, "Documents", newFileName); // Combine path
+
             var id = User.FindFirst("Id")?.Value ?? "";
             Directory.CreateDirectory(Path.GetDirectoryName(filePath));
 
@@ -44,7 +47,8 @@ namespace Api.Controllers
                 FilePath = filePath,
                 ContentType = file.ContentType,
                 UploadedDate = DateTime.Now,
-                OwnerId = id
+                OwnerId = id,
+                FileKey = newFileName,
             };
 
             return await _documentService.DocumentCreate(document);
