@@ -12,7 +12,8 @@ connection = pika.BlockingConnection(connection_params)
 channel = connection.channel()
 
 # Declare a queue (create it if it does not exist)
-queue_name = 'my_queue'
+queue_name = 'documentQueue'
+print(rabbitmq_host,rabbitmq_port,queue_name)
 channel.queue_declare(queue=queue_name, durable=True)
 
 # Define a callback function to handle messages
@@ -20,7 +21,7 @@ def callback(ch, method, properties, body):
     print(f"Received {body}")
 
 # Set up the consumer
-channel.basic_consume(queue=queue_name, on_message_callback=callback, auto_ack=True)
+channel.basic_consume(queue=queue_name, on_message_callback=callback, auto_ack=True,consumer_tag='document_processor')
 
 print('Waiting for messages. To exit press CTRL+C')
 channel.start_consuming()

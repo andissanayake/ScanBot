@@ -15,17 +15,10 @@ services:
       - SQL_USER=sa
       - SQL_PASSWORD=YourStrong!Passw0rd
     depends_on:
-      - postgres
+      - postgres 
+      - rabbitmq
     volumes:
       - shared-data:/app/wwwroot
-  # web:
-  #   build:
-  #     context: src/web
-  #   ports:
-  #     - "1000:1000"
-  #   environment:
-  #     CHOKIDAR_USEPOLLING: "true" # Ensure file changes are detected inside the container
-  #     CHOKIDAR_INTERVAL: "1000"   # Optional: Adjust polling interval
   web:
     build: 
         context: src/web
@@ -34,16 +27,6 @@ services:
     volumes:
       - .:/web
     command: npm run dev
-  # sqlserver:
-  #   image: mcr.microsoft.com/mssql/server:2022-latest
-  #   container_name: sqlserver
-  #   environment:
-  #     - ACCEPT_EULA=Y
-  #     - SA_PASSWORD=YourStrong!Passw0rd
-  #   ports:
-  #     - "1433:1433"
-  #   volumes:
-  #     - sql_data:/var/opt/mssql
   rabbitmq:
     image: rabbitmq:3-management
     ports:
@@ -54,6 +37,12 @@ services:
       RABBITMQ_DEFAULT_PASS: "guest"
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+      interval: 30s
+      retries: 5
+      start_period: 10s
+      timeout: 10s
   postgres:
     image: postgres:latest
     container_name: postgres
@@ -65,11 +54,20 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "user"]
+      interval: 30s
+      retries: 5
+      start_period: 10s
+      timeout: 10s
   document:
     build: 
         context: src/Document
     depends_on:
-      - rabbitmq
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
     environment:
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_PORT=5672
