@@ -87,7 +87,8 @@ def store_in_database(paragraphs, document_id):
                 for idx, paragraph in enumerate(paragraphs, start=1):
                     try:
                         page = paragraph['page']
-                        processed_chunk = preprocess_text(" ".join(paragraphs['group']))
+                        para =" ".join(paragraph['group']);
+                        processed_chunk = preprocess_text(" ".join(paragraph['group']))
 
                         logging.info(f"page {page} processed_chunk {processed_chunk}.")
 
@@ -99,8 +100,8 @@ def store_in_database(paragraphs, document_id):
                         embedding = model.encode(processed_chunk)
                         cur.execute("""
                             INSERT INTO public."DocumentSegments" ("DocumentId", "TextContent", "Embedding", "UploadedDate","PageId")
-                            VALUES (%s, %s, %s, %s)
-                        """, (document_id, paragraph, (embedding.tolist(),), datetime.utcnow().isoformat()),page)
+                            VALUES (%s, %s, %s, %s,%s)
+                        """, (document_id, para, (embedding.tolist(),), datetime.utcnow().isoformat(),page))
                 
                         # Commit once after all inserts
                         conn.commit()

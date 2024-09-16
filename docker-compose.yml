@@ -73,7 +73,7 @@ services:
       - RABBITMQ_PORT=5672
     volumes:
       - shared-data:/app/wwwroot
-    command: ["python", "processor.py"]
+    command: ["python", "processor2.py"]
 volumes:
   sql_data:
   rabbitmq-data: 
