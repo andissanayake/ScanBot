@@ -18,6 +18,7 @@ COPY . .
 
 # Download NLTK data
 RUN python -m nltk.downloader all
+#RUN python -m nltk.downloader punkt stopwords wordnet
 
 # Define the command to run the application
 CMD ["python", "processor.py"]

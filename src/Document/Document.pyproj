@@ -21,6 +21,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="processor2.py" />
     <Compile Include="processor.py" />
   </ItemGroup>
   <ItemGroup>

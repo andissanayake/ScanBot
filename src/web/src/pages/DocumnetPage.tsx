@@ -28,9 +28,9 @@ export const DocumentPage = () => {
         if (response.ok) {
           const data = await response.json();
           onSuccess?.(data, file);
-          message.success(
-            `${(file as RcFile).name} file uploaded successfully`
-          );
+          //message.success(
+          //  `${(file as RcFile).name} file uploaded successfully`
+          //);
         } else {
           onError?.(new Error("Upload failed"));
           message.error(`${(file as RcFile).name} file upload failed.`);

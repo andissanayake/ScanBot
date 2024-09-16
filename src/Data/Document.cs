@@ -15,6 +15,7 @@
     {
         public int Id { get; set; }
         public int DocumentId { get; set; }
+        public int PageId { get; set; }
         public string TextContent { get; set; }
         public double[] Embedding { get; set; }
         public DateTime UploadedDate { get; set; }
