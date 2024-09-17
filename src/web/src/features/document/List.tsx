@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Table, Typography, Spin, Alert } from "antd";
+import axios from "axios";
 
 const { Title } = Typography;
 
@@ -57,25 +58,25 @@ const DocumentTable: React.FC = () => {
   useEffect(() => {
     const fetchDocuments = async () => {
       try {
-        const response = await fetch("https://localhost:1002/api/Documents", {
-          method: "GET",
-          headers: {
-            Accept: "application/json",
-          },
-        });
-
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-
-        const result: ApiResponse = await response.json();
+        const response = await axios.get(
+          "https://localhost:1002/api/Documents",
+          {
+            headers: {
+              Accept: "application/json",
+            },
+          }
+        );
+        setLoading(false);
+        const result: ApiResponse = response.data;
         if (result.isSucceed) {
           setDocuments(result.data.documents);
         } else {
           setError("Failed to load documents");
         }
-      } catch (error: any) {
-        setError(error?.message ?? "");
+      } catch (error) {
+        setError(
+          error instanceof Error ? error.message : "An unknown error occurred"
+        );
       } finally {
         setLoading(false);
       }
