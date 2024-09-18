@@ -1,16 +1,19 @@
-import pika
-import os
 import json
-import PyPDF2
-import psycopg2
-from datetime import datetime
 import logging
+import os
 import re
-from sentence_transformers import SentenceTransformer
+from datetime import datetime
+
 import nltk
-from nltk.tokenize import word_tokenize
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
+from nltk.tokenize import word_tokenize
+
+import pika
+import psycopg2
+import PyPDF2
+from sentence_transformers import SentenceTransformer
+import time
 
 nltk.download('punkt')
 nltk.download('stopwords')
@@ -21,37 +24,6 @@ model = SentenceTransformer('all-MiniLM-L6-v2')
 logging.basicConfig(filename='document_processor.log',
                     level=logging.INFO,
                     format='%(asctime)s - %(levelname)s - %(message)s')
-
-# Fetch RabbitMQ connection parameters from environment variables
-rabbitmq_host = os.getenv('RABBITMQ_HOST', 'localhost')
-rabbitmq_port = int(os.getenv('RABBITMQ_PORT', 5672))
-
-connection_params = pika.ConnectionParameters(host=rabbitmq_host, port=rabbitmq_port)
-
-# Create a connection to RabbitMQ
-connection = pika.BlockingConnection(connection_params)
-channel = connection.channel()
-
-# Declare a queue (create it if it does not exist)
-queue_name = 'documentQueue'
-logging.info(f'Connecting to RabbitMQ at {rabbitmq_host}:{rabbitmq_port} with queue {queue_name}')
-channel.queue_declare(queue=queue_name, durable=True)
-
-# Define a callback function to handle messages
-def callback(ch, method, properties, body):
-    # Decode the body to a JSON object
-    data = json.loads(body)
-    
-    # Extract the necessary information from the message body
-    file_path = data["FilePath"]
-    file_name = data["FileName"]
-    file_id = data["Id"]
-    
-    logging.info(f"Processing file: {file_name}")
-
-    sentence_groups = process_pdf(file_path)
-
-    store_in_database(sentence_groups, file_id)
 
 def preprocess_text(text):
     # Tokenize the text
@@ -170,9 +142,51 @@ def process_pdf(pdf_path, min_length=5):
 
     return results
 
+# Define a callback function to handle messages
+def callback(ch, method, properties, body):
+    # Decode the body to a JSON object
+    data = json.loads(body)
+    
+    # Extract the necessary information from the message body
+    file_path = data["FilePath"]
+    file_name = data["FileName"]
+    file_id = data["Id"]
+    
+    logging.info(f"Processing file: {file_name}")
 
-# Set up the consumer
-channel.basic_consume(queue=queue_name, on_message_callback=callback, auto_ack=True, consumer_tag='document_processor')
+    sentence_groups = process_pdf(file_path)
 
-logging.info('Waiting for messages. To exit press CTRL+C')
-channel.start_consuming()
+    store_in_database(sentence_groups, file_id)
+
+# Fetch RabbitMQ connection parameters from environment variables
+rabbitmq_host = os.getenv('RABBITMQ_HOST', 'localhost')
+rabbitmq_port = int(os.getenv('RABBITMQ_PORT', 5672))
+
+connection_params = pika.ConnectionParameters(host=rabbitmq_host, port=rabbitmq_port)
+
+queue_name = 'documentQueue'
+retry_delay_seconds = 60  # 1 minutes (60 seconds)
+
+def connect_to_rabbitmq():
+    while True:
+        try:
+            # Try to create a connection to RabbitMQ
+            logging.info(f'Trying to connect to RabbitMQ at {rabbitmq_host}:{rabbitmq_port}')
+            connection = pika.BlockingConnection(connection_params)
+            channel = connection.channel()
+            
+            # Declare a queue (create it if it does not exist)
+            logging.info(f'Connected. Declaring queue {queue_name}')
+            channel.queue_declare(queue=queue_name, durable=True)
+            
+            # Set up the consumer
+            channel.basic_consume(queue=queue_name, on_message_callback=callback, auto_ack=True, consumer_tag='document_processor')
+            
+            logging.info('Waiting for messages. To exit press CTRL+C')
+            channel.start_consuming()
+
+        except pika.exceptions.AMQPConnectionError as e:
+            logging.error(f'Connection to RabbitMQ failed: {e}. Retrying in {retry_delay_seconds // 60} minutes...')
+            time.sleep(retry_delay_seconds)
+
+connect_to_rabbitmq()
