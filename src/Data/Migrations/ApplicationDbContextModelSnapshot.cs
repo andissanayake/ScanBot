@@ -137,9 +137,9 @@ namespace Data.Migrations
                     b.Property<int>("DocumentId")
                         .HasColumnType("integer");
 
-                    b.Property<double[]>("Embedding")
+                    b.Property<string>("Embedding")
                         .IsRequired()
-                        .HasColumnType("double precision[]");
+                        .HasColumnType("vector(768)");
 
                     b.Property<int>("PageId")
                         .HasColumnType("integer");

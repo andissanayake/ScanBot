@@ -18,7 +18,7 @@ import time
 nltk.download('punkt')
 nltk.download('stopwords')
 nltk.download('wordnet')
-model = SentenceTransformer('all-MiniLM-L6-v2')
+model = SentenceTransformer('all-mpnet-base-v2')
 
 # Set up logging
 logging.basicConfig(filename='document_processor.log',
@@ -131,8 +131,12 @@ def store_in_database(paragraphs, document_id):
                         cur.execute("""
                             INSERT INTO public."DocumentSegments" ("DocumentId", "TextContent", "Embedding", "UploadedDate","PageId")
                             VALUES (%s, %s, %s, %s,%s)
-                        """, (document_id, para, (embedding.tolist(),), datetime.utcnow().isoformat(),page))
-                
+                        """, (document_id, para, embedding.tolist(), datetime.utcnow().isoformat(),page))
+
+                        cur.execute("""
+                            UPDATE public."Documents" SET "Status" = 'PROCESSED' WHERE "Id" = %s
+                        """, (document_id,))
+
                         # Commit once after all inserts
                         conn.commit()
                     except Exception as e:
@@ -165,7 +169,7 @@ rabbitmq_port = int(os.getenv('RABBITMQ_PORT', 5672))
 
 connection_params = pika.ConnectionParameters(host=rabbitmq_host, port=rabbitmq_port)
 
-queue_name = 'documentQueue'
+queue_name = os.getenv('RABBITMQ_QUEUE', 'documentQueue')
 retry_delay_seconds = 60  # 1 minutes (60 seconds)
 
 def connect_to_rabbitmq():
