@@ -17,20 +17,11 @@ nltk.download('wordnet', quiet=True)
 model = SentenceTransformer('all-mpnet-base-v2')
 app = FastAPI()
 
-# Pydantic models for structured responses
-class DocumentDetails(BaseModel):
-    Id: int
-    FileKey: str
+class SearchResult(BaseModel):
+    PageId: int
     FileName: str
     ContentType: str
     FilePath: str
-    OwnerId: str
-    Status: str
-    UploadedDate: datetime
-
-class SearchResult(BaseModel):
-    PageId: int
-    DocumentDetails: DocumentDetails
     TextContent: str
     CosineSimilarity: float
 
@@ -63,7 +54,7 @@ def search_documents(
         # Query with pgvector's cosine similarity
         cur.execute(""" 
             SELECT ds."PageId", 
-                d."Id", d."FileKey", d."FileName", d."ContentType", d."FilePath", d."OwnerId", d."Status", d."UploadedDate", 
+                d."FileName", d."ContentType", d."FilePath", 
                 ds."TextContent", 
                 (ds."Embedding" <=> %s::vector) as "CosineSimilarity"
             FROM public."DocumentSegments" ds
@@ -79,18 +70,11 @@ def search_documents(
         for row in rows:
             result = SearchResult(
                 PageId=row[0],
-                DocumentDetails=DocumentDetails(
-                    Id=row[1],
-                    FileKey=row[2],
-                    FileName=row[3],
-                    ContentType=row[4],
-                    FilePath=row[5],
-                    OwnerId=row[6],
-                    Status=row[7],
-                    UploadedDate=row[8]
-                ),
-                TextContent=row[9],
-                CosineSimilarity=row[10]
+                FileName=row[1],
+                ContentType=row[2],
+                FilePath=row[3],
+                TextContent=row[4],
+                CosineSimilarity=row[5]
             )
             results.append(result)
         
