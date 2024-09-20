@@ -15,9 +15,10 @@ import PyPDF2
 from sentence_transformers import SentenceTransformer
 import time
 
-nltk.download('punkt')
-nltk.download('stopwords')
-nltk.download('wordnet')
+# Ensure NLTK resources are downloaded only if not already available
+nltk.download('punkt', quiet=True)
+nltk.download('stopwords', quiet=True)
+nltk.download('wordnet', quiet=True)
 model = SentenceTransformer('all-mpnet-base-v2')
 
 # Set up logging
@@ -53,7 +54,7 @@ def process_pdf(pdf_path, min_length=5):
                         page_buffer.append(page_num + 1)
                         
                         # Check if we have a complete group of 5 sentences
-                        if len(sentence_buffer) == 5:
+                        if len(sentence_buffer) == 10:
                             results.append({
                                 'page': page_buffer[0],  # Page of the first sentence in the group
                                 'group': sentence_buffer
