@@ -63,7 +63,7 @@ namespace Api
             builder.Services.AddSingleton<IMessageQueueService, RabbitMQService>();
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
-
+            builder.Services.AddHttpClient();
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("webAppRequests", builder =>

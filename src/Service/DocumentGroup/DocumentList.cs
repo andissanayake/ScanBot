@@ -18,10 +18,12 @@ namespace Service.DocumentGroup
     {
         public List<DocumentListLitem> Documents { get; set; }
     }
+
     public partial class DocumentService(
-        ApplicationDbContext applicationDbContext, IMessageQueueService messageQueueService)
+        ApplicationDbContext applicationDbContext, IMessageQueueService messageQueueService, HttpClient httpClient)
     {
         private readonly ApplicationDbContext _context = applicationDbContext;
+        private readonly HttpClient _httpClient = httpClient;
         public async Task<AppResponse<DocumentListResponse>> DocumentListAsync(string userId)
         {
             var docs = await _context.Documents

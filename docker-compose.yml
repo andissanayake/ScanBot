@@ -17,6 +17,7 @@ services:
     depends_on:
       - postgres 
       - rabbitmq
+      - document-api
     volumes:
       - shared-data:/app/wwwroot
   web:

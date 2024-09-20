@@ -1,11 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Service;
 using Service.DocumentGroup;
 
 namespace Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
+    [Authorize]
     public class DocumentsController : ControllerBase
     {
         private readonly DocumentService _documentService;
@@ -54,6 +56,14 @@ namespace Api.Controllers
             return await _documentService.DocumentCreate(document);
 
         }
+
+        [HttpGet]
+        public async Task<AppResponse<DocumentSearchResponse>> DocumentSearch([FromQuery] string searchText, [FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        {
+            var id = User.FindFirst("Id")?.Value ?? "";
+            return await _documentService.DocumentSearchAsync(new DocumentSearchRequest() { OwnerId = id, PageNumber = pageNumber, PageSize = pageSize, SearchText = searchText });
+        }
+
     }
 
 }
